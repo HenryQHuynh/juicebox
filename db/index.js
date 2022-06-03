@@ -20,7 +20,7 @@ async function getAllUsers() {
 async function updateUser(id, fields = {}) {
   // build the set string
   const setString = Object.keys(fields).map(
-    (key, index) => `"${ key }"=$${ index + 1 }`
+    (key, index) => `"${key}"=$${index + 1}`
   ).join(', ');
 
   // return early if this is called without fields
@@ -29,10 +29,10 @@ async function updateUser(id, fields = {}) {
   }
 
   try {
-    const { rows: [ user ] } = await client.query(`
+    const { rows: [user] } = await client.query(`
       UPDATE users
-      SET ${ setString }
-      WHERE id=${ id }
+      SET ${setString}
+      WHERE id=${id}
       RETURNING *;
     `, Object.values(fields));
 
@@ -42,29 +42,30 @@ async function updateUser(id, fields = {}) {
   }
 }
 
-async function createUser({ 
-  username, 
+async function createUser({
+  username,
   password,
   name,
   location
 }) {
   try {
-    const { rows } = await client.query(`
+    const { rows: [user] } = await client.query(`
       INSERT INTO users(username, password, name, location) 
       VALUES($1, $2, $3, $4) 
       ON CONFLICT (username) DO NOTHING 
       RETURNING *;
     `, [username, password, name, location]);
 
-    return rows;
+    // return rows;
+    return user;
   } catch (error) {
     throw error;
   }
 }
 // and export them
 module.exports = {
-    client,
-    getAllUsers,
-    createUser,
-    updateUser,
+  client,
+  getAllUsers,
+  createUser,
+  updateUser,
 }
