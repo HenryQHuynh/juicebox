@@ -65,10 +65,10 @@ async function getAllUsers() {
 
 async function getUserById(userId) {
   try {
-    const { rows: [ user ] } = await client.query(`
+    const { rows: [user] } = await client.query(`
       SELECT id, username, name, location, active
       FROM users
-      WHERE id=${ userId }
+      WHERE id=${userId}
     `);
 
     if (!user) {
@@ -89,7 +89,7 @@ async function createPost({
   content
 }) {
   try {
-    const { rows: [ post ] } = await client.query(`
+    const { rows: [post] } = await client.query(`
       INSERT INTO posts("authorId", title, content) 
       VALUES($1, $2, $3)
       RETURNING *;
@@ -152,10 +152,41 @@ async function getPostsByUser(userId) {
   }
 }
 
+async function createTags(tagList) {
+  if (tagList.length === 0) { 
+    return; 
+  }
+
+  // need something like: $1), ($2), ($3 
+  const insertValues = tagList.map(
+    (_, index) => `$${index + 1}`).join('), (');
+  // then we can use: (${ insertValues }) in our string template
+
+  // need something like $1, $2, $3
+  const selectValues = tagList.map(
+    (_, index) => `$${index + 1}`).join(', ');
+  // then we can use (${ selectValues }) in our string template
+
+  try {
+    // insert the tags, doing nothing on conflict
+    // returning nothing, we'll query after
+
+    // select all tags where the name is in our taglist
+    // return the rows from the query
+    const { rows } = await client.query(`
+    INSERT INTO tags(name)
+    VALUES ($1), ($2), ($3)
+    ON CONFLICT (name) DO NOTHING
+    RETURNING *;
+    `, [tagList]);
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 // and export them
-module.exports = {  
+module.exports = {
   client,
   createUser,
   updateUser,
@@ -164,5 +195,5 @@ module.exports = {
   createPost,
   updatePost,
   getAllPosts,
-  getPostsByUser
+  getPostsByUser,
 }
