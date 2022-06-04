@@ -4,9 +4,15 @@
 // const { client } = require('./index');
 const {
     client,
-    getAllUsers, // new
+    getAllUsers,
     createUser,
-    updateUser
+    updateUser,
+    getAllUsers,
+    getUserById,
+    createPost,
+    updatePost,
+    getAllPosts,
+    getPostsByUser
 } = require('./index');
 
 // async function testDB() {

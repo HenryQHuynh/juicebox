@@ -69,19 +69,37 @@ async function createPost({
   content
 }) {
   try {
+    const { rows: [post] } = await client.query(`
+    INSERT INTO posts("authorId", title, content)
+    VALUES  ($1, $2. $3)
+    `, [authorId, title, content]);
 
+    return post;
   } catch (error) {
     throw error;
   }
-}
+};
 
-async function updatePost(id, {
-  title,
-  content,
-  active
-}) {
+async function updatePost(id, fields = {}) {
+  // build the set string
+  const setString = Object.keys(fields).map(
+    (key, index) => `"${key}"=$${index + 1}`
+  ).join(', ');
+
+  // return early if this is called without fields
+  if (setString.length === 0) {
+    return;
+  }
+
   try {
+    const { rows: [post] } = await client.query(`
+      UPDATE posts
+      SET ${setString}
+      WHERE id=${id}
+      RETURNING *;
+    `, Object.values(fields));
 
+    return post;
   } catch (error) {
     throw error;
   }
@@ -89,7 +107,12 @@ async function updatePost(id, {
 
 async function getAllPosts() {
   try {
+    const { rows } = await client.query(`
+      SELECT *
+      FROM posts;
+    `);
 
+    return rows;
   } catch (error) {
     throw error;
   }
@@ -97,7 +120,7 @@ async function getAllPosts() {
 
 async function getPostsByUser(userId) {
   try {
-    const { rows } = client.query(`
+    const { rows } = await client.query(`
       SELECT * FROM posts
       WHERE "authorId"=${userId};
     `);
@@ -139,9 +162,14 @@ async function getUserById(userId) {
 }
 
 // and export them
-module.exports = {
+module.exports = {  
   client,
-  getAllUsers,
   createUser,
   updateUser,
+  getAllUsers,
+  getUserById,
+  createPost,
+  updatePost,
+  getAllPosts,
+  getPostsByUser
 }
