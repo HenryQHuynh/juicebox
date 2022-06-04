@@ -170,20 +170,50 @@ async function createTags(tagList) {
   try {
     // insert the tags, doing nothing on conflict
     // returning nothing, we'll query after
+    await client.query(`
+    INSERT INTO tags(name)
+    VALUES (${ insertValues })
+    ON CONFLICT (name) DO NOTHING
+    `, tagList);
 
     // select all tags where the name is in our taglist
     // return the rows from the query
     const { rows } = await client.query(`
-    INSERT INTO tags(name)
-    VALUES ($1), ($2), ($3)
-    ON CONFLICT (name) DO NOTHING
-    RETURNING *;
-    `, [tagList]);
+    SELECT * FROM tags
+    WHERE name
+    IN (${ selectValues });
+    `, tagList);
+    return rows;
   } catch (error) {
     throw error;
   }
 }
 
+async function createPostTag(postId, tagId) {
+  try {
+    await client.query(`
+      INSERT INTO post_tags("postId", "tagId")
+      VALUES ($1, $2)
+      ON CONFLICT ("postId", "tagId") DO NOTHING;
+    `, [postId, tagId]);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function addTagsToPost(postId, tagList) {
+  try {
+    const createPostTagPromises = tagList.map(
+      tag => createPostTag(postId, tag.id)
+    );
+
+    await Promise.all(createPostTagPromises);
+
+    return await getPostById(postId);
+  } catch (error) {
+    throw error;
+  }
+}
 
 // and export them
 module.exports = {
