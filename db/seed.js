@@ -286,7 +286,6 @@ async function testDB() {
   }
 }
 
-
 rebuildDB()
   .then(testDB)
   .catch(console.error)

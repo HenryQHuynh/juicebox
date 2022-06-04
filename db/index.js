@@ -90,7 +90,7 @@ async function createPost({
   tags = [] // this is new
 }) {
   try {
-    const { rows: [ post ] } = await client.query(`
+    const { rows: [post] } = await client.query(`
       INSERT INTO posts("authorId", title, content) 
       VALUES($1, $2, $3)
       RETURNING *;
@@ -111,7 +111,7 @@ async function updatePost(postId, fields = {}) {
 
   // build the set string
   const setString = Object.keys(fields).map(
-    (key, index) => `"${ key }"=$${ index + 1 }`
+    (key, index) => `"${key}"=$${index + 1}`
   ).join(', ');
 
   try {
@@ -119,8 +119,8 @@ async function updatePost(postId, fields = {}) {
     if (setString.length > 0) {
       await client.query(`
         UPDATE posts
-        SET ${ setString }
-        WHERE id=${ postId }
+        SET ${setString}
+        WHERE id=${postId}
         RETURNING *;
       `, Object.values(fields));
     }
@@ -133,14 +133,14 @@ async function updatePost(postId, fields = {}) {
     // make any new tags that need to be made
     const tagList = await createTags(tags);
     const tagListIdString = tagList.map(
-      tag => `${ tag.id }`
+      tag => `${tag.id}`
     ).join(', ');
 
     // delete any post_tags from the database which aren't in that tagList
     await client.query(`
       DELETE FROM post_tags
       WHERE "tagId"
-      NOT IN (${ tagListIdString })
+      NOT IN (${tagListIdString})
       AND "postId"=$1;
     `, [postId]);
 
@@ -161,7 +161,7 @@ async function getAllPosts() {
     `);
 
     const posts = await Promise.all(postIds.map(
-      post => getPostById( post.id )
+      post => getPostById(post.id)
     ));
 
     return posts;
