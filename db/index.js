@@ -83,8 +83,6 @@ async function getUserById(userId) {
   }
 }
 
-  
-
 async function createPost({
   authorId,
   title,
