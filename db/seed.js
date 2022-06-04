@@ -7,7 +7,6 @@ const {
     getAllUsers,
     createUser,
     updateUser,
-    getAllUsers,
     getUserById,
     createPost,
     updatePost,
@@ -159,34 +158,50 @@ async function createInitialUsers() {
 
 async function createInitialPosts() {
     try {
-      const [albert, sandra, glamgal] = await getAllUsers();
-  
-      await createPost({
-        authorId: albert.id,
-        title: "First Post",
-        content: "This is my first post. I hope I love writing blogs as much as I love writing them."
-      });
-  
-      // a couple more
-    } catch (error) {
-      throw error;
-    }
+        const [albert, sandra, glamgal] = await getAllUsers();
+
+        console.log("Starting to create posts...");
+        await createPost({
+            authorId: albert.id,
+            title: "First Post",
+            content: "This is my first post. I hope I love writing blogs as much as I love writing them."
+        });
+
+        await createPost({
+            authorId: sandra.id,
+            title: "Back in my day we wrote code on graph sheets",
+            content: "Seriously, how does this mumbo jumbo even work. You young whipper snappers."
+        });
+
+        await createPost({
+            authorId: glamgal.id,
+            title: "My Dress-up Darling is a cute Rom-Com!",
+            content: "It is a simple rom-com/slice-of-life between two characters exploring their interests in their hobbies. They just happen to find different ways for the male MC to express his talents!"
+        });
+
+        console.log("Finished creating posts!");
+  } catch (error) {
+    console.log("Error creating posts!");
+    throw error;
   }
+}
 
 // then modify rebuildDB to call our new function
 async function rebuildDB() {
     try {
-        client.connect();
-
-        await dropTables();
-        await createTables();
-        await createInitialUsers();
+      client.connect();
+  
+      await dropTables();
+      await createTables();
+      await createInitialUsers();
+      await createInitialPosts();
     } catch (error) {
-        throw error;
+      console.log("Error during rebuildDB")
+      throw error;
     }
-}
+  }
 
-async function testDB() {
+  async function testDB() {
     try {
       console.log("Starting to test database...");
   
@@ -222,8 +237,9 @@ async function testDB() {
       throw error;
     }
   }
-
-rebuildDB()
+  
+  
+  rebuildDB()
     .then(testDB)
     .catch(console.error)
     .finally(() => client.end());
