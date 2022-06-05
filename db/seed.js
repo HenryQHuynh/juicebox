@@ -15,7 +15,8 @@ const {
   createTags,
   createPostTag,
   addTagsToPost,
-  getPostById
+  getPostById,
+  getPostsByTagName
 } = require('./index');
 
 // async function testDB() {
@@ -229,6 +230,21 @@ async function createInitialTags() {
 }
 
 // then modify rebuildDB to call our new function
+// async function rebuildDB() {
+//   try {
+//     client.connect();
+
+//     await dropTables();
+//     await createTables();
+//     await createInitialUsers();
+//     await createInitialPosts();
+//     await createInitialTags(); // new
+//   } catch (error) {
+//     console.log("Error during rebuildDB")
+//     throw error;
+//   }
+// }
+
 async function rebuildDB() {
   try {
     client.connect();
@@ -280,6 +296,11 @@ async function testDB() {
       tags: ["#youcandoanything", "#redfish", "#bluefish"]
     });
     console.log("Result:", updatePostTagsResult);
+
+    console.log("Calling getPostsByTagName with #happy");
+    const postsWithHappy = await getPostsByTagName("#happy");
+    console.log("Result:", postsWithHappy);
+    
   } catch (error) {
     console.log("Error during testDB");
     throw error;

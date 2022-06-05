@@ -90,7 +90,7 @@ async function createPost({
   tags = [] // this is new
 }) {
   try {
-    const { rows: [post] } = await client.query(`
+    const { rows: [ post ] } = await client.query(`
       INSERT INTO posts("authorId", title, content) 
       VALUES($1, $2, $3)
       RETURNING *;
@@ -283,6 +283,24 @@ async function getPostById(postId) {
   }
 }
 
+async function getPostsByTagName(tagName) {
+  try {
+    const { rows: postIds } = await client.query(`
+      SELECT posts.id
+      FROM posts
+      JOIN post_tags ON posts.id=post_tags."postId"
+      JOIN tags ON tags.id=post_tags."tagId"
+      WHERE tags.name=$1;
+    `, [tagName]);
+
+    return await Promise.all(postIds.map(
+      post => getPostById(post.id)
+    ));
+  } catch (error) {
+    throw error;
+  }
+} 
+
 // and export them
 module.exports = {
   client,
@@ -297,5 +315,6 @@ module.exports = {
   createTags,
   createPostTag,
   addTagsToPost,
-  getPostById
+  getPostById,
+  getPostsByTagName
 }
