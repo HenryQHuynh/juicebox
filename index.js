@@ -1,7 +1,15 @@
-// npm run start:dev
-// npm run start
+require('dotenv').config();
+
+// npm run start:dev -- Runs nodemon
+// npm run start -- Runs DB once
 // node index.js into this file and curl to have things display
 // curl http://localhost:3000
+
+// As we're resting our webtoken. enter the below text into the command line
+// curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "albert", "password": "bertie99"}'
+// curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "sandral", "password": "2sandy4me"}' 
+// curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "glamgal", "password": "soglam"}' 
+
 
 const PORT = 3000;
 const express = require('express');
