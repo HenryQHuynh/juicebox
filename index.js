@@ -8,13 +8,30 @@ const express = require('express');
 const server = express();
 // const app = express();
 
-server.use((req, res, next) => {
-    console.log("<____Body Logger START____>");
-    console.log(req.body);
-    console.log("<_____Body Logger END_____>");
+const morgan = require('morgan');
+server.use(morgan('dev'));
 
-    next();
+server.use(express.json())
+
+const { client } = require('./db');
+client.connect();
+
+server.listen(PORT, () => {
+    console.log('The server is up on port', PORT, '. Systems operational')
 });
+
+const apiRouter = require('./api');
+server.use('/api', apiRouter);
+
+
+// Previous Practice
+// server.use((req, res, next) => {
+//     console.log("<____Body Logger START____>");
+//     console.log(req.body);
+//     console.log("<_____Body Logger END_____>");
+
+//     next();
+// });
 
 // app.use('/api', (req, res, next) => {
 //   console.log("A request was made to /api");
@@ -25,8 +42,3 @@ server.use((req, res, next) => {
 //   console.log("A get request was made to /api");
 //   res.send({ message: "success" });
 // });
-
-server.listen(PORT, () => {
-    console.log('The server is up on port', PORT, '. Systems operational')
-});
-
