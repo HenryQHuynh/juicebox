@@ -2,9 +2,15 @@ const express = require('express');
 const postsRouter = express.Router();
 
 postsRouter.use((req, res, next) => {
-  console.log("A request is being made to /posts");
+  console.log("A request is being made to /posts right now!");
 
-  res.send({ message: 'hello from /posts! We will try something new! But not really' });
+  next(); // THIS IS DIFFERENT
+});
+
+postsRouter.get('/', (req, res) => {
+  res.send({
+    posts: []
+  });
 });
 
 module.exports = postsRouter;
