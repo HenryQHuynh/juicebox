@@ -1,3 +1,5 @@
+Part 2:
+Webtoken set-up:
 const jwt = require('jsonwebtoken');
 
 const token = jwt.sign({ id: 1, username: 'albert' }, process.env.JWT_SECRET)
@@ -17,3 +19,24 @@ recoveredData;
 
 token given:
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2NTQ5NzA0MjN9.KtnkToIIlgHJ1vUr9AidUU0QyfeClYjjTOPvfubF8JA
+
+Part 3:
+REMEMBER TO GRAB A THE NEW TOKEN PLS
+curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "albert", "password": "bertie99"}'
+
+# {"message":"you're logged in!","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2NTQ5NzUzOTR9.cRy2tV5k1Zh-0WL5_LW-0J-SF-226PtifqtQFYLCm1Y"}
+
+# Correctly formed request
+curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2NTQ5NzUzOTR9.cRy2tV5k1Zh-0WL5_LW-0J-SF-226PtifqtQFYLCm1Y' -H 'Content-Type: application/json' -d '{"title": "test post", "content": "how is this?", "tags": " #once #twice    #happy"}'
+
+# {"id":4,"title":"test post","content":"how is this?","active":true,"tags":[{"id":1,"name":"#happy"},{"id":11,"name":"#once"},{"id":12,"name":"#twice"}],"author":{"id":1,"username":"albert","name":"Newname Sogood","location":"Lesterville, KY"}}
+
+# Missing tags
+curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2NTQ5NzUzOTR9.cRy2tV5k1Zh-0WL5_LW-0J-SF-226PtifqtQFYLCm1Y' -H 'Content-Type: application/json' -d '{"title": "I still do not like tags", "content": "CMON! why do people use them?"}'
+
+# {"id":7,"title":"I still do not like tags","content":"CMON! why do people use them?","active":true,"tags":[{"id":14,"name":""}],"author":{"id":1,"username":"albert","name":"Newname Sogood","location":"Lesterville, KY"}}
+
+# Missing title or content
+curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2NTQ5NzUzOTR9.cRy2tV5k1Zh-0WL5_LW-0J-SF-226PtifqtQFYLCm1Y' -H 'Content-Type: application/json' -d '{"title": "I am quite frustrated"}'
+
+# {"name":"error","message":"null value in column \"content\" violates not-null constraint"}
