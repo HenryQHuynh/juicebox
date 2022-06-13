@@ -14,7 +14,7 @@ require('dotenv').config();
 // curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "glamgal", "password": "soglam"}' 
 
 
-const PORT = 3000;
+const { PORT = 3000 } = process.env
 const express = require('express');
 const server = express();
 // const app = express();
