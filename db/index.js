@@ -2,10 +2,8 @@
 const { Client } = require('pg'); // imports the pg module
 
 // supply the db name and location of the database
-const client = new Client({
-  connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-});
+const client = new Client(process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev');
+
 async function createUser({
   username,
   password,
@@ -67,19 +65,23 @@ async function getAllUsers() {
 
 async function getUserById(userId) {
   try {
-    const { rows: [user] } = await client.query(`
-      SELECT id, username, name, location, active
-      FROM users
-      WHERE id=${userId}
+    const {rows} = await client.query(`
+      SELECT * FROM users
+      WHERE "id"=${ userId };
     `);
 
-    if (!user) {
-      return null
+    if (rows.length === 0) {
+      return;
     }
 
-    user.posts = await getPostsByUser(userId);
+    const userData = rows[0];
+    delete userData.password;
 
-    return user;
+    const posts = await getPostsByUser(userId)
+
+    userData.posts = posts
+
+    return userData;
   } catch (error) {
     throw error;
   }
@@ -253,6 +255,15 @@ async function addTagsToPost(postId, tagList) {
   }
 }
 
+async function getAllTags() {
+  const { rows } = await client.query(
+    `SELECT id, name 
+    FROM tags;
+  `);
+
+  return rows;
+}
+
 async function getPostById(postId) {
   try {
     const { rows: [ post ]  } = await client.query(`
@@ -341,6 +352,7 @@ module.exports = {
   getPostsByUser,
   createTags,
   createPostTag,
+  getAllTags,
   addTagsToPost,
   getPostById,
   getPostsByTagName,
